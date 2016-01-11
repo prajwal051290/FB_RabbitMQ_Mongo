@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Facebook Login</title>
+<link rel="stylesheet" href="../stylesheets/style.css" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+</head>
+
+<body class="login" ng-app="loginAngular">
+<!-- header starts here -->
+<div id="facebook-Bar">
+  <div id="facebook-Frame">
+    <div id="logo"> <a href="localhost:3000">Facebook</a> </div>
+    
+         
+        <div id="header-main-right">
+          <div id="header-main-right-nav">
+        <form id="login_form" name="login_form" ng-controller="loginController">
+          <table border="0" style="border:none">
+            <tr>
+              <td ><input type="text" tabindex="1"  id="email" placeholder="Email" name="email" class="inputtext radius1" value="" ng-model="loginEmail"></td>
+              <td ><input type="password" tabindex="2" id="pass" placeholder="Password" name="pass" class="inputtext radius1"  ng-model="loginPass"></td>
+              <td ><button class="fbbutton" name="login" ng-click="login()">Login</button></td>
+              <td ><span style="color:red; font-weight:bold";>{{loginStatus}}</span></td>
+            </tr>
+          </table>
+        </form>
+      </div>
+          </div>
+      </div>
+</div>
+<!-- header ends here -->
+      
+<div class="loginbox radius">
+<h2 style="color:#141823; text-align:center;">Welcome to Facebook</h2>
+	<div class="loginboxinner radius">
+    	<div class="loginheader">
+    		<h4 class="title">Connect with friends and the world around you.</h4>
+    	</div><!--loginheader-->
+        
+        <div class="loginform" ng-controller="loginController">
+        
+        
+             <!--<form id="login" ng-app="signUpAngular" ng-controller="loginController">-->
+            <p>
+                    <input type="text" id="username" name="username" placeholder="First Name" value="" class="radius mini" ng-model="fName" ng-required="true"/> 
+                    <input type="text" id="username" name="username" placeholder="Last Name" value="" class="radius mini" ng-model="lName" required/>
+            </p>
+            	<p>
+                    <input type="text" id="username" name="username" placeholder="Your Email" value="" class="radius" ng-model="emailID" required/>
+                </p>
+                <p>
+                    <input type="password" id="password" name="password" placeholder="Password" class="radius" ng-model="paswd" required/>
+                </p>
+                <p>
+                	<button class="radius title" name="client_login" ng-click="newAccount()">Sign Up for Facebook</button>
+                </p>
+        		<p>
+                	<span style="color:red; font-weight:bold";>{{signupStatus}}</span>
+                </p>
+                        	
+        </div><!--loginform-->
+    </div><!--loginboxinner-->
+</div><!--loginbox-->
+
+<script>
+  
+  	<!--Controller for Login Info-->
+  	
+  	var login = angular.module('loginAngular', []);
+	login.controller('loginController', homeOperations); 
+			
+	function homeOperations($scope, $http) {
+  		
+  		$scope.login = function(){
+  		
+  			var loginInfo = {loginEmail:$scope.loginEmail, loginPass:$scope.loginPass};
+  			
+  			$http.post("/login", loginInfo)
+  			.success(function(data) {
+  				if (data == "SUCCESS")
+  				{
+  					console.log("Success returned from Login Function");
+  					window.location.assign("/home");
+  				}
+  				else if (data = "FAILED")
+  				{
+  					console.log("Incorrect Login");
+  					$scope.loginStatus = "INVALID!"
+  				}
+            })
+  			
+  		}
+  		
+  		
+  		$scope.newAccount = function(){
+  		
+  			console.log("Sign Up angular working...")
+  			$scope.signupStatus = "";
+  			
+  			if ($scope.fName == null || $scope.fName == "")
+  			{
+  				$scope.signupStatus = "ERROR CREATING AN USER! FIRST NAME REQUIRED!";
+  			}
+  			
+  			else if ($scope.lName == null || $scope.lName == "")
+  			{
+  				$scope.signupStatus = "ERROR CREATING AN USER! LAST NAME REQUIRED!";
+  			}
+  			
+  			else if ($scope.emailID == null || $scope.emailID == "")
+  			{
+  				$scope.signupStatus = "ERROR CREATING AN USER! EMAILID REQUIRED!";
+  			}
+  			
+  			else if ($scope.paswd == null || $scope.paswd == "")
+  			{
+  				$scope.signupStatus = "ERROR CREATING AN USER! PASSWORD REQUIRED!";
+  			}
+  		
+  			
+  			if ($scope.signupStatus == ""){
+  				console.log("hellooooo");
+	  			var signUpInfo = {emailId:$scope.emailID, fName:$scope.fName, lName:$scope.lName, password:$scope.paswd};
+	  			
+	  			$http.post("/signUp", signUpInfo)
+	  			.success(function(data) {
+	  				if (data == "SUCCESS")
+	  				{
+	  					console.log("Success returned from signup Function");
+	  					window.location.assign("/home");
+	  				}
+	  				else if (data = "FAILED")
+	  				{
+	  					console.log("There was an error creating an account");
+	  					$scope.signupStatus = "ERROR CREATING AN USER!!!";
+	  				}
+	            })
+	            
+	        }
+	        
+  		}
+  			
+  	}
+  		
+</script>
+
+</body>
+
+</html>

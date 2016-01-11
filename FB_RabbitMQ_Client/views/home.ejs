@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Facebook Home</title>
+<link rel="stylesheet" href="../stylesheets/style.css" type="text/css" />
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style>
+a.navigate {
+	font-size: 30px;
+}
+
+</style>
+
+
+</head>
+
+<body class="login" ng-app="homeAngular" ng-controller="homeController">
+<!-- header starts here -->
+<div id="facebook-Bar">
+  <div id="facebook-Frame">
+    <div id="logo"> <a href="/home">Facebook</a> </div>
+    
+          
+        <div id="header-main-right">
+          <div id="header-main-right-nav">
+        
+          <table border="0" style="border:none">
+            <tr>
+              <td><input type="text" tabindex="1" placeholder="Search Friends" class="inputtext radius1" value="" ng-model="search"></td>
+              <td><button class="btn btn-info" ng-click="searchFriend()">Search</button></td>
+              <td><button class="btn btn-danger" ng-click="logout()">Logout</button></td>
+            </tr>
+          </table>
+        
+     	 </div>
+      		
+        </div>
+      </div>
+</div>
+<!-- header ends here -->
+	
+
+<div class="container">
+  <ul class="list-inline">
+    <li><a href="/about" class="navigate">About | </a></li>
+    <li><a href="/group" class="navigate">Groups | </a></li>
+    <li><a href="/friends" class="navigate">Friends</a></li>
+  </ul>
+</div>
+
+
+
+<!--{{fullName}}{{friendship}}-->
+
+<!--<div ng-show="sendReq"><button class="fbbutton" ng-click="sendRequest()">Send Request</button></div>-->
+<!--<div ng-show="acceptReq"><button class="fbbutton" ng-click="acceptRequest()">Accept Request</button></div>-->
+
+<img src="../images/fb.jpg" alt="Facebook" height="200" align="left">
+
+<br>
+
+<!--
+<br><br>
+
+<div ng-show="sendReq"><button class="fbbutton" ng-click="sendRequest()">Send Request</button></div>
+<div ng-show="acceptReq"><button class="fbbutton" ng-click="acceptRequest()">Accept Request</button></div>
+-->
+
+<!--<div align="center">-->
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="well"> 
+ 				<form role="form" class="form-horizontal">
+  					<div style="padding:14px;" class="form-group">
+    					<textarea placeholder="What's on your mind?" class="form-control" ng-model="feed"></textarea>
+  					</div>
+  
+   					<button type="button" class="btn btn-success pull-right" ng-click="postFeed()">Post</button><ul class="list-inline"><li><a href="#"><i class="glyphicon glyphicon-align-left"></i></a></li><li><a href="#"><i class="glyphicon glyphicon-align-center"></i></a></li><li><a href="#"><i class="glyphicon glyphicon-align-right"></i></a></li></ul>
+   					
+				</form>
+			</div>
+		</div>
+	</div>	
+<!--</div>-->
+
+<div ng-show="searchFrnd">
+	<div class="col-md-3">
+	<table class="table">
+	  
+		<tbody>
+	    
+			<tr class="success">
+	        	<td><button type = "button" class = "btn btn-info">{{fullName}}</button></td>
+	        	<td><button type = "button" class = "btn btn-default" ng-click="sendRequest()">{{friendship}}</button></td>
+	        </tr>
+	      
+	  	</tbody>
+	  
+	</table>
+	
+	<br>
+	
+	{{requestStatus}}
+	
+	</div>
+</div>
+
+<strong>{{feedStatus}}</strong>
+
+<br>
+
+<div ng-repeat="x in feeds">
+	<div class="container">
+	  <div class="panel-group">
+	    <div class="panel panel-success">
+	      <div class="panel-heading">Posted by: {{x.name}}</div>
+	      <div class="panel-body">{{x.feed}}</div>
+	    </div>
+	  </div>
+	</div>
+</div>
+
+<script>
+  
+  	<!--Controller for Logout-->
+  	
+  	var home = angular.module('homeAngular', []);
+	home.controller('homeController', homeOperations); 
+	
+	<!--Home Function-->
+	
+	function homeOperations($scope, $http) {
+  		
+  		$scope.sendReq = false;
+  		$scope.acceptReq = false;
+  		var dest_email = "";
+  		$scope.searchFrnd = false;
+  	<!--Always load news feed on home function-->
+	
+	$http.post("/feedOps", {type: "G"})
+  			.success(function(response) {
+  				console.log("Success returned from GET_FEED function");
+  				if (response.code == "200"){
+  					console.log("Feeds fetched successfully");
+  					$scope.feeds = response.data.slice();
+  					console.log($scope.feeds);
+  				}
+  				else{
+  					console.log("Error in fetching feeds");
+  				}
+  				
+  	})
+	
+	 	
+  	<!--Logout-->
+  	
+  		$scope.logout = function(){
+  		
+  			console.log("Inside logout function");
+  			$http.post("/logout")
+  			.success(function(data) {
+  				console.log("Success returned from Logout");
+  				window.location.assign("/");
+  			})
+  						
+  		}
+  		
+  	<!--Search Friend-->
+  		
+  		$scope.searchFriend = function(){
+  		
+  			var searchFriend = "";
+  			$scope.searchFrnd = true;
+  			console.log("Inside search friend function");
+  			searchFriend = {name:$scope.search, type:"S"}
+  			
+  			$http.post("/friendOps",searchFriend)
+  			.success(function(response) {
+  				console.log("Success returned from searchFriend function");
+  				
+  				console.log(response);
+  				
+  				$scope.fullName = response.data.first_name + " " + response.data.last_name;
+  				dest_email = response.data._id;
+  				
+  				if (response.data1 == null){
+  					$scope.friendship = "Send Request"
+  				}
+  				
+  				else{ 
+  					if (response.data1.status === "A"){
+  						$scope.friendship = "Already Friends";
+  					}				
+  				}			
+  			})
+  			
+  		}
+  	
+  	<!--Send Request-->
+  		
+  		$scope.sendRequest = function(){
+  				
+  			var destFriend = "";
+  			console.log("Inside sendRequest() function");
+  			destFriend = {destination: dest_email, type: "P"};
+  			
+  			$http.post("/friendOps",destFriend)
+  			.success(function(response) {
+  				console.log("Success returned from sendRequest() function");
+  				if (response.code == "200"){
+  					$scope.requestStatus = "Request sent successfully";
+  				}
+  				else{
+  					console.log("Error in DB Operation with code: "+ response.code);
+  				}
+  				
+  			})
+  			
+  						
+  		}
+  		
+  	<!--Accept Request-->
+  		
+  		$scope.acceptRequest = function(){
+  		
+  			var acceptFriend = "";
+  			console.log("Inside sendRequest() function");
+  			acceptFriend = {acceptFriend:$scope.fname}
+  			
+  			$http.post("/acceptReq",acceptFriend)
+  			.success(function(data) {
+  				console.log("Success returned from acceptRequest() function");
+  				$scope.status = "Request accepted successfully"
+  				
+  			})
+  			
+  		}
+  		
+  	<!--News Feed-->
+  		
+  		$scope.postFeed = function(){
+  		
+  			var news = "";
+  			console.log("Inside postFeed() function");
+  			news = {newsfeed: $scope.feed, type: "S"};
+  			
+  			$http.post("/feedOps",news)
+  			.success(function(response) {
+  				console.log("Success returned from newsFeed() function");
+  				if (response.code == "200"){
+  					$scope.feedStatus = "FEED POSTED SUCCESSFULLY";
+  				}
+  				else{
+  					console.log("Error in fetching feeds");
+  				}
+  			})
+  			
+  		}	
+  }
+		
+</script>
+
+</body>
+
+</html>

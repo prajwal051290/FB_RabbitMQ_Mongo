@@ -1,0 +1,475 @@
+
+<!DOCTYPE html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Facebook Home</title>
+<link rel="stylesheet" href="../stylesheets/style.css" type="text/css" />
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style>
+a.navigate {
+	font-size: 30px;
+}
+</style>
+
+</head>
+
+<body class="login" ng-app="homeAngular" ng-controller="homeController">
+<!-- header starts here -->
+
+
+<div id="facebook-Bar">
+  <div id="facebook-Frame">
+    <div id="logo"> <a href="/home">Facebook</a> </div>
+    
+         
+        <div id="header-main-right">
+          <div id="header-main-right-nav">
+        
+          <table border="0" style="border:none">
+            <tr>
+              <td ><input type="text" tabindex="1" placeholder="Search Friends" class="inputtext radius1" value="" ng-model="search"></td>
+              <td ><button class="fbbutton" ng-click="searchFriend()">Search</button></td>
+              <td ><button class="fbbutton" ng-click="logout()">Logout</button></td>
+            </tr>
+          </table>
+        
+      </div>
+      		
+          </div>
+      </div>
+</div>
+<!-- header ends here -->
+  
+  
+ <div class="container">
+  <ul class="list-inline">
+    <li><a href="/about" class="navigate">About | </a></li>
+    <li><a href="/group" class="navigate">Groups | </a></li>
+    <li><a href="#" class="navigate">Friends</a></li>
+  </ul>
+</div>
+
+<br><br>
+  
+ <div class="container">
+    <div class="row profile">
+		<div class="col-md-3">
+			<div class="profile-sidebar">
+				<!-- SIDEBAR MENU -->
+				<div class="profile-usermenu">
+					<ul class="nav">
+						<li class="active">
+							<button class="fbbutton" ng-click="showGroups()">My Groups</button> </a>
+						</li>
+						<br>
+						<li>
+							<button class="fbbutton" ng-click="createGroup()">Create Group</button> </a>
+						</li>
+						<br>
+					</ul>
+				</div>
+				<!-- END MENU -->
+			</div>
+		</div>
+		<div class="col-md-9">
+		
+		<div ng-show="grps">
+			
+			<strong>MY GROUPS:</strong> <br><br>
+			<table class="table">
+  
+  			<tbody ng-repeat="x in listOfGroups">
+    
+		    <tr class="success">
+        		<td><button type = "button" class = "btn btn-info" ng-click="groupDetails(x)">{{x}}</button></td>
+        		<td><button type = "button" class = "btn btn-default" ng-click="manageGroup(x)">Manage Group</button></td>
+        		<td><button type = "button" class = "btn btn-success" ng-click="deleteGroup(x)">Delete Group</button></td>
+      		</tr>
+      
+  			</tbody>
+  
+			</table>
+			
+			<br>				
+			<strong>{{deleteGroupStatus}}</strong>
+							
+		</div>
+		
+				
+				
+			<div ng-show="create">
+				<strong>CREATE A GROUP</strong> <br><br>
+				<input placeholder="Group Name" ng-model="grpName"> 
+				<input placeholder="Group Description" ng-model="grpDesc">
+				<br> <br>
+				<button type="button" class="btn btn-success" ng-click="saveGroup()">Save</button>
+				<strong>{{createGroupStatus}}</strong>
+			</div>
+
+
+
+			
+			
+			<div ng-show="groupOps">
+			
+				<strong>GROUP MANAGEMENT FOR : "{{grpManageName}}"</strong> <br><br>
+								
+				<table class="table">
+  
+	  				<tbody>
+	    
+			    		<tr class="success">
+	        				<td><button type="button" class="btn btn-default" ng-click="showMembers()">Show Members</button></td>
+							<td><button type="button" class="btn btn-default" ng-click="addMembers()">Add Members</button></td>
+	      				</tr>
+	      
+	  				</tbody>
+  
+				</table>
+				
+			</div>
+			
+			
+			<div ng-show="showMem">
+			
+				<strong>MEMBERS OF A GROUP : "{{memberOfGroup}}"</strong> <br><br>
+								
+				<table class="table">
+  
+	  				<tbody ng-repeat="x in memberList">
+	    
+			    		<tr class="success">
+	        				<td><button type="button" class="btn btn-default">{{x}}</button></td>
+							<td><button type="button" class="btn btn-success" ng-click="deleteMember(x)">Delete Member</button></td>
+	      				</tr>
+	      
+	  				</tbody>
+  
+				</table>
+				
+				<br>
+				
+				<strong>{{deleteMemberStatus}}</strong>
+				
+			</div>
+			
+			
+			
+			<div ng-show="addMem">
+			
+				<strong>ADD MEMBERS IN A GROUP : "{{memberOfGroup}}"</strong> <br><br>
+								
+				<table class="table">
+  
+	  				<tbody ng-repeat="x in addmemberList">
+	    
+			    		<tr class="success">
+	        				<td><button type="button" class="btn btn-default">{{x}}</button></td>
+							<td><button type="button" class="btn btn-success" ng-click="addMember(x)">Add Member</button></td>
+	      				</tr>
+	      
+	  				</tbody>
+  
+				</table>
+				
+				<br>
+				
+				<strong>{{addMemberStatus}}</strong>
+				
+			</div>
+			
+			
+		</div>
+        
+        
+             
+	                
+        
+<br>
+<br>
+ 
+ 
+
+<script>
+  
+  	var home = angular.module('homeAngular', []);
+	home.controller('homeController', homeOperations); 
+	
+	<!--Home Function-->
+	
+	function homeOperations($scope, $http) {
+  	
+  	var currentGroup = "";
+  	$scope.grps = false;
+  	$scope.grpDetails = false;
+  	$scope.grpManage = false;
+  	$scope.create = false;
+  	$scope.groupOps = false;
+  	$scope.showMem = false;
+  	$scope.addMem = false;
+  	$scope.deleteMemberStatus = "";
+  	$scope.addmemberList = [];
+  	
+  	<!--Create Group-->
+  		
+  		$scope.createGroup = function(){
+  			
+  			var group = "";
+  			$scope.grps = false;
+  			$scope.grpDetails = false;
+  			$scope.grpManage = false;
+  			$scope.create = true;
+  			$scope.groupOps = false;
+  			$scope.showMem = false;
+  			$scope.addMem = false;
+  			
+  			console.log("Inside CreateGroup function");
+  			
+  			  			
+  		}
+  		
+  		
+  		$scope.saveGroup = function(){
+  		
+  			var group = {groupName: $scope.grpName, groupDesc: $scope.grpDesc, type: "C"};
+  			
+  			$http.post("/groupOps",group)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from Create Group function");
+  					$scope.createGroupStatus = "GROUP CREATED SUCCESSFULLY!!!";
+  				}
+  				else{
+  					console.log("Failure returned from Create Group function");
+  				}
+  				
+  				
+  			})
+  		
+  		}
+  		
+  		
+  		
+  	<!--Show Groups-->
+  		
+  		$scope.showGroups = function(){
+  		
+  			console.log("Inside showGroups function");
+  			
+  			$scope.listOfGroups = "";
+  			$scope.grps = true;
+  			$scope.grpDetails = false;
+  			$scope.grpManage = false;
+  			$scope.create = false;
+  			$scope.deleteGroupStatus = "";
+  			$scope.groupOps = false;
+  			$scope.showMem = false;
+  			$scope.addMem = false;
+  			
+  			var group = {type: "S"};
+  			
+  			$http.post("/groupOps", group)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from SHOW_GROUPS function");
+  					$scope.listOfGroups = response.data.slice();
+  				}
+  				else{
+  					console.log("Failure returned from SHOW_GROUPS function");
+  				}  				
+  				  			
+  			})
+			  			
+  		
+  		}
+  		
+  	<!--Group Details-->
+  		
+  		$scope.groupDetails = function(grpName){
+  			
+  			var groupName = "";
+  			$scope.currentGroup = grpName;
+  			$scope.grps = false;
+  			$scope.grpDetails = true;
+  			$scope.grpManage = false;
+  			$scope.groupOps = false;
+  			$scope.showMem = false;
+  			$scope.addMem = false;
+  			
+			groupName = {groupName:$scope.currentGroup};
+			
+			$http.post("/groupDetails",groupName)
+  			.success(function(data) {
+  				console.log("Success returned from groupDetails function");
+  				
+  				$scope.members = data.slice(0);
+  			
+  			})
+						  			
+  		}
+  	
+  	
+  	<!--Delete a Group-->
+  		
+  		$scope.deleteGroup = function(grpName){
+  		
+  			var group = "";
+  			
+  			group = {grpName : grpName, type: "D"}; 
+  			
+  			$http.post("/groupOps", group)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from DELETE_GROUP function");
+  					$scope.deleteGroupStatus = "GROUP DELETED SUCCESSFULLY!!!";
+  				}
+  				else{
+  					console.log("Failure returned from DELETE_GROUP function");
+  				}  				
+  				  			
+  			})
+  			
+  		}	
+
+
+	<!--Manage Group-->
+  		
+  		$scope.manageGroup = function(grpName){
+  		
+  			$scope.groupOps = true;
+  			$scope.grps = false;
+  			$scope.grpDetails = false;
+  			$scope.grpManage = false;
+  			$scope.create = false;
+  			$scope.showMem = false;
+  			$scope.grpManageName = grpName;
+  			$scope.addMem = false;
+  		}
+  		
+  	
+  	<!--Show members of a group-->
+  		
+  		$scope.showMembers = function(){
+  		
+  			$scope.showMem = true;
+  			$scope.groupOps = false;
+  			$scope.grps = false;
+  			$scope.grpDetails = false;
+  			$scope.grpManage = false;
+  			$scope.create = false;
+  			$scope.addMem = false;
+  			$scope.memberOfGroup = $scope.grpManageName;
+  			
+  			
+  			var listMem = "";
+  			
+  			listMem = {grpName : $scope.grpManageName, type: "L"}; 
+  			
+  			$http.post("/groupOps", listMem)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from SHOW_MEMBERS function");
+  					$scope.memberList = response.data.slice();
+  				}
+  				else{
+  					console.log("Failure returned from SHOW_MEMBERS function");
+  				}  				
+  				  			
+  			})
+  			
+  		}	
+  		
+
+	<!-- Delete members of a group-->
+  		
+  		$scope.deleteMember = function(name){
+  		
+  			var deleteMem = "";
+  			
+  			deleteMem = {grpName: $scope.grpManageName, memName : name, type: "DM"}; 
+  			
+  			$http.post("/groupOps", deleteMem)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from DELETE_MEMBERS function");
+  					$scope.deleteMemberStatus = "MEMBER DELETED SUCCESSFULLY!!!";
+  				}
+  				else{
+  					console.log("Failure returned from DELETE_MEMBERS function");
+  				}  				
+  				  			
+  			})
+  			
+  		}	
+
+
+
+	<!--Add members in a group-->
+  		
+  		$scope.addMembers = function(){
+  		
+  			$scope.showMem = false;
+  			$scope.groupOps = false;
+  			$scope.grps = false;
+  			$scope.grpDetails = false;
+  			$scope.grpManage = false;
+  			$scope.create = false;
+  			$scope.addMem = true;
+  			$scope.memberOfGroup = $scope.grpManageName;
+  			
+  			
+  			var listMem = "";
+  			
+  			listMem = {grpName : $scope.grpManageName, type: "AL"}; 
+  			
+  			$http.post("/groupOps", listMem)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from ADD_MEMBERS_IN_GROUP function");
+  					$scope.addmemberList = response.data.slice(0);
+  					console.log($scope.addmemberList);
+  				}
+  				else{
+  					console.log("Failure returned from ADD_MEMBERS_IN_GROUP function");
+  				}  				
+  				  			
+  			})
+  			
+  		}	
+	
+
+	<!--Add member in a group-->
+  		
+  		$scope.addMember = function(name){
+  		
+  			var listMem = "";
+  			
+  			addMemGrp = {grpName : $scope.grpManageName, name: name, type: "AD"}; 
+  			
+  			$http.post("/groupOps", addMemGrp)
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					console.log("Success returned from ADD_MEMBERS_IN_GROUP_ACTUALLY function");
+  					$scope.addMemberStatus = "MEMBER ADDED SUCCESSFULLY!!!"
+  				}
+  				else{
+  					console.log("Failure returned from ADD_MEMBERS_IN_GROUP_ACTUALLY function");
+  				}  				
+  				  			
+  			})
+  			
+  		}	
+	
+	}
+		
+</script>
+
+</body>
+
+</html>

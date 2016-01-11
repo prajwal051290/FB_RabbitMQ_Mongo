@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Facebook Home</title>
+<link rel="stylesheet" href="../stylesheets/style.css" type="text/css" />
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<style>
+a.navigate {
+	font-size: 30px;
+}
+
+
+img.friend {
+    float: right;
+    margin: 0px 50px 0px 0px;
+}
+
+div.showFriends {
+	margin: 0px 0px 0px 110px;
+}
+
+
+</style>
+
+
+</head>
+
+<body class="login" ng-app="homeAngular" ng-controller="homeController">
+<!-- header starts here -->
+<div id="facebook-Bar">
+  <div id="facebook-Frame">
+    <div id="logo"> <a href="/home">Facebook</a> </div>
+    
+         
+        <div id="header-main-right">
+          <div id="header-main-right-nav">
+        
+          <table border="0" style="border:none">
+            <tr>
+              <td ><input type="text" tabindex="1" placeholder="Search Friends" class="inputtext radius1" value="" ng-model="search"></td>
+              <td ><button class="fbbutton" ng-click="searchFriend()">Search</button></td>
+              <td ><button class="fbbutton" ng-click="logout()">Logout</button></td>
+            </tr>
+          </table>
+        
+      </div>
+      		
+          </div>
+      </div>
+</div>
+<!-- header ends here -->
+
+<div class="container">
+  <ul class="list-inline">
+    <li><a href="/about" class="navigate">About | </a></li>
+    <li><a href="/group" class="navigate">Groups | </a></li>
+    <li><a href="/friends" class="navigate">Friends</a></li>
+  </ul>
+</div>
+
+<img class="friend" src="../images/friends3.png" alt="Friends" height="150" width="230">
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-xs-6">
+      <div class="table-responsive">
+      
+		<table class="table">
+  
+   			
+   			<thead>
+    
+      			<tr>
+        			<th>YOUR PENDING REQUESTS:</th>
+        		</tr>
+      
+		    </thead>
+   			
+   			<tbody ng-repeat="x in pending_friends">
+    
+		      <tr class="success">
+		        <td><img src="../images/user1.jpg" alt="Friends" height="50" width="50"></td>
+		        <td align="center">{{x}}</td>
+		        <td align="right"><button type="button" class="btn btn-success" ng-click="acceptReq(x)">Accept Pending Request</button></td>
+		      </tr>
+      
+    		</tbody>
+    
+  		</table>
+  		<strong>{{acceptStatus}}</strong>
+	</div>
+   </div>
+  </div>
+</div>
+
+<div class="showFriends"> 
+<button type="button" class="btn btn-info" ng-click="showMyFriends()">SEE YOUR FRIENDS</button>
+</div>
+
+<br>
+
+<div ng-show="showGrid">
+<div class="container">
+  <div class="row">
+    <div class="col-xs-4">
+      <div class="table-responsive">
+      
+		<table class="table">
+  
+   			
+   			<thead>
+    
+      			<tr>
+        			<th>YOUR FRIENDS:</th>
+        		</tr>
+      
+		    </thead>
+   			
+   			<tbody ng-repeat="x in my_friends">
+    
+		      <tr class="success">
+		        <td><img src="../images/user2.jpg" alt="Friends" height="50" width="50"></td>
+		        <td align="center">{{x}}</td>
+		      </tr>
+      
+    		</tbody>
+    
+  		</table>
+  		
+	</div>
+   </div>
+  </div>
+</div>
+</div>
+ 
+ <script>
+  
+  	var home = angular.module('homeAngular', []);
+	home.controller('homeController', homeOperations); 
+	
+	<!--Home Function-->
+	
+	function homeOperations($scope, $http) {
+  		
+  		var dest_email = "";
+  		$scope.pending_friends = [];
+  		$scope.my_friends = [];
+  		$scope.showGrid = false;
+  		
+  	<!--Load all friends (Pending)-->
+	
+	$http.post("/friendOps", {type: "SP"})
+  			.success(function(response) {
+  				if (response.code == "200"){
+  					
+  					console.log("Success returned from FRIEND_OPs function");
+  					$scope.pending_friends = response.data.slice();
+  				}
+  				else{
+  					console.log("Error fetching pending requests");
+  				}
+  	})
+  		
+  	<!--Logout-->
+  	
+  		$scope.logout = function(){
+  		
+  			console.log("Inside logout function");
+  			$http.post("/logout")
+  			.success(function(data) {
+  				console.log("Success returned from Logout");
+  				window.location.assign("/");
+  			})
+  						
+  		}
+  		
+  	<!--Accept Request-->
+  		
+  		$scope.acceptReq = function(name){
+  		
+  			var acceptFriend = "";
+  			console.log("Inside acceptReq() function");
+  			acceptFriend = {acceptFriend: name, type: "AR"}
+  			
+  			$http.post("/friendOps",acceptFriend)
+  			.success(function(response) {
+  			if (response.code == "200"){
+  				console.log("Success returned from FRIEND_OPs function");
+  				$scope.acceptStatus = "REQUEST ACCEPTED SUCCESSFULLY!!!";
+  			}
+  			else{
+  				console.log("Error accepting request");
+  			}
+  				
+  			})
+  			
+  		}
+  		
+  		
+  	<!--Show My Friends-->
+  		
+  		$scope.showMyFriends = function(){
+  		
+  			var showFriends = "";
+  			console.log("Inside showMyFriends() function");
+  			showFriends = {type: "SF"}
+  			
+  			$http.post("/friendOps",showFriends)
+  			.success(function(response) {
+  			if (response.code == "200"){
+  				console.log("Success returned from FRIEND_OPs function");
+  				$scope.my_friends = response.data.slice();
+  				$scope.showGrid = true;
+ 			}
+  			else{
+  				console.log("Error showing my friends");
+  			}
+  				
+  			})
+  			
+  		}
+  		
+}
+		
+</script>
+ 
+ </body>
+
+</html>
+ 
